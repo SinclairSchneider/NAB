@@ -1,3 +1,4 @@
+from datetime import datetime
 import time
 import sys
 from nab.detectors.base import AnomalyDetector
@@ -151,7 +152,8 @@ class EarthgeckoSkylineDetector(AnomalyDetector):
         ts = inputData["timestamp"]
 
         # Convert the Timestamp object to a epoch timestamp
-        timestamp = ts.strftime('%s')
+        #timestamp = ts.strftime('%s')
+        timestamp = int((ts - datetime(1970, 1, 1)).total_seconds())
 
         inputRow = [int(timestamp), inputData["value"]]
         self.timeseries.append(inputRow)
