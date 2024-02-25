@@ -78,6 +78,7 @@ class Runner(object):
     self.profilesPath = profilesPath
     self.thresholdPath = thresholdPath
     self.pool = multiprocessing.Pool(numCPUs)
+    self.numCPUs = numCPUs
 
     self.probationaryPercent = 0.15
     self.windowSize = 0.10
@@ -131,7 +132,22 @@ class Runner(object):
 
     # Using `map_async` instead of `map` so interrupts are properly handled.
     # See: http://stackoverflow.com/a/1408476
-    self.pool.map_async(detectDataSet, args).get(999999)
+    if self.numCPUs > 1:(
+      self.pool.map_async(detectDataSet, args).get(999999))
+    else:
+      for detectorName, detectorConstructor in detectors.items():
+        for relativePath, dataSet in self.corpus.dataFiles.items():
+          if relativePath in self.corpusLabel.labels:
+            detectDataSet(
+              [count,
+              detectorConstructor(
+                dataSet=dataSet,
+                probationaryPercent=self.probationaryPercent),
+              detectorName,
+              self.corpusLabel.labels[relativePath]["label"],
+              self.resultsDir,
+              relativePath]
+            )
 
 
   def optimize(self, detectorNames):
@@ -281,4 +297,3 @@ class Runner(object):
     resultsPath = os.path.join(self.resultsDir, "final_results.json")
     updateFinalResults(finalResults, resultsPath)
     print("Final scores have been written to %s." % resultsPath)
-
