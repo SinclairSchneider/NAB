@@ -132,8 +132,10 @@ class Runner(object):
 
     # Using `map_async` instead of `map` so interrupts are properly handled.
     # See: http://stackoverflow.com/a/1408476
-    if self.numCPUs > 1:(
-      self.pool.map_async(detectDataSet, args).get(999999))
+    if self.numCPUs is None:
+      (self.pool.map_async(detectDataSet, args).get(999999))
+    elif self.numCPUs > 1:
+      (self.pool.map_async(detectDataSet, args).get(999999))
     else:
       for detectorName, detectorConstructor in detectors.items():
         for relativePath, dataSet in self.corpus.dataFiles.items():
